@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cabeleireiro Corte Fino - Agendamento Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #e91e63;
+      --primary-dark: #c2185b;
+      --bg: #f8f8fb;
+      --text: #333;
+      --radius: 10px;
+      --shadow: 0 6px 18px rgba(0,0,0,0.08);
+      --transition: 0.25s ease;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .contact-info {
+      font-size: 0.9rem;
+      text-align: right;
+      line-height: 1.4;
+    }
+
+    .contact-info strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 24px auto;
+      padding: 0 16px 32px;
+      display: grid;
+      grid-template-columns: 2fr 1.5fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 840px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .contact-info {
+        text-align: left;
+      }
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h2 span.icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(233, 30, 99, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--primary-dark);
+    }
+
+    .subtitle {
+      margin: 2px 0 12px;
+      font-size: 0.86rem;
+      color: #777;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1px solid #ddd;
+      font-size: 0.92rem;
+      outline: none;
+      transition: var(--transition);
+      background: #fafafa;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.12);
+      background: #fff;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1.4fr 1.6fr;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .calendar-header button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--primary-dark);
+      font-size: 1rem;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .calendar-header button:hover {
+      background: rgba(233, 30, 99, 0.08);
+    }
+
+    .weekday {
+      text-align: center;
+      color: #999;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      padding-bottom: 2px;
+    }
+
+    .day {
+      text-align: center;
+      padding: 6px 0;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: var(--transition);
+      background: #fafafa;
+      border: 1px solid transparent;
+    }
+
+    .day.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+      background: #f4f4f4;
+    }
+
+    .day.available:hover {
+      border-color: var(--primary);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+
+    .day.selected {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary-dark);
+      box-shadow: 0 4px 10px rgba(233, 30, 99, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      min-height: 34px;
+    }
+
+    .slot {
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: var(--transition);
+      background: #fafafa;
+    }
+
+    .slot:hover {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+
+    .slot.selected {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary-dark);
+      box-shadow: 0 3px 8px rgba(233, 30, 99, 0.3);
+    }
+
+    .slot.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .no-slots {
+      font-size: 0.78rem;
+      color: #999;
+    }
+
+    .services {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 4px 0 8px;
+    }
+
+    .service {
+      padding: 5px 9px;
+      border-radius: 7px;
+      border: 1px solid #ddd;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: #fafafa;
+      transition: var(--transition);
+    }
+
+    .service:hover {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+
+    .service.selected {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary-dark);
+      box-shadow: 0 3px 8px rgba(233, 30, 99, 0.25);
+    }
+
+    button.primary {
+      width: 100%;
+      padding: 9px 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.96rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button.primary:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 6px 14px rgba(233, 30, 99, 0.35);
+      transform: translateY(-1px);
+    }
+
+    button.primary:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 8px rgba(233,30,99,0.25);
+    }
+
+    .summary {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 7px;
+      background: #fafafa;
+      border-left: 3px solid rgba(233, 30, 99, 0.18);
+    }
+
+    .alert {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 7px;
+      background: #fff8f9;
+      color: #b0003a;
+      border: 1px solid #ffc4d3;
+      display: none;
+    }
+
+    .success {
+      font-size: 0.82rem;
+      margin-top: 6px;
+      padding: 7px 9px;
+      border-radius: 7px;
+      background: #e6ffed;
+      color: #147c38;
+      border: 1px solid #b7f5ca;
+      display: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 0.65rem;
+      border-radius: 999px;
+      background: rgba(233, 30, 99, 0.06);
+      color: var(--primary-dark);
+      margin-left: 4px;
+    }
+
+    .professional-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .note {
+      font-size: 0.72rem;
+      color: #888;
+      margin-top: 3px;
+    }
+
+    .appointments-list {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .appointment-item {
+      padding: 5px 7px;
+      margin-bottom: 4px;
+      border-radius: 7px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .appointment-item span {
+      display: block;
+    }
+
+    .appointment-item .name {
+      font-weight: 600;
+      font-size: 0.78rem;
+      color: #333;
+    }
+
+    .appointment-item .detail {
+      font-size: 0.7rem;
+      color: #777;
+    }
+
+    .appointment-item .tag {
+      font-size: 0.65rem;
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: rgba(233, 30, 99, 0.06);
+      color: var(--primary-dark);
+      border: 1px solid rgba(233,30,99,0.16);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">✂️</div>
+    <div>
+      <h1>Cabeleireiro Corte Fino</h1>
+      <p>Agende online o seu horário com os nossos profissionais.</p>
+    </div>
+  </div>
+  <div class="contact-info">
+    <strong>WhatsApp: +351 912 508 052</strong>
+    <span>Endereço: Atualize aqui o endereço do salão</span>
+    <span>Segunda a Sábado: 9h às 19h</span>
+  </div>
+</header>
+
+<main>
+  <!-- Coluna de seleção -->
+  <section class="card">
+    <h2><span class="icon">📅</span>Agendar horário</h2>
+    <p class="subtitle">Escolha o profissional, o serviço, a data e o horário disponíveis.</p>
+
+    <div class="row">
+      <div>
+        <div class="professional-label">
+          <label for="professional">Profissional</label>
+          <span class="badge">Obrigatório</span>
+        </div>
+        <select id="professional">
+          <option value="">Selecione o profissional</option>
+          <option value="Ana Rita">Ana Rita</option>
+          <option value="Zé Carlos">Zé Carlos</option>
+        </select>
+      </div>
+      <div>
+        <label for="service">Serviço</label>
+        <select id="service">
+          <option value="">Selecione o serviço</option>
+          <optgroup label="Cabelo Homem">
+            <option value="Cabelo Homem - Corte simples (30 min)">Corte simples (30 min)</option>
+            <option value="Cabelo Homem - Corte simples com lavagem (45 min)">Corte simples com lavagem (45 min)</option>
+            <option value="Cabelo Homem - Corte, lavagem e penteado (1h)">Corte, lavagem e penteado (1h)</option>
+          </optgroup>
+          <optgroup label="Cabelo Mulher">
+            <option value="Cabelo Mulher - Corte simples (40 min)">Corte simples (40 min)</option>
+            <option value="Cabelo Mulher - Corte simples com lavagem (1h)">Corte simples com lavagem (1h)</option>
+            <option value="Cabelo Mulher - Corte, lavagem e penteado (1h20)">Corte, lavagem e penteado (1h20)</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <label>Atalhos de serviço</label>
+    <div class="services" id="quickServices">
+      <div class="service" data-service="Cabelo Homem - Corte simples (30 min)">Homem - Corte simples</div>
+      <div class="service" data-service="Cabelo Homem - Corte simples com lavagem (45 min)">Homem - Corte + lavagem</div>
+      <div class="service" data-service="Cabelo Homem - Corte, lavagem e penteado (1h)">Homem - Completo</div>
+      <div class="service" data-service="Cabelo Mulher - Corte simples (40 min)">Mulher - Corte simples</div>
+      <div class="service" data-service="Cabelo Mulher - Corte simples com lavagem (1h)">Mulher - Corte + lavagem</div>
+      <div class="service" data-service="Cabelo Mulher - Corte, lavagem e penteado (1h20)">Mulher - Completo</div>
+    </div>
+
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <button id="prevMonth">&lt;</button>
+        <div id="currentMonth"></div>
+        <button id="nextMonth">&gt;</button>
+      </div>
+      <div class="calendar" id="calendar">
+        <!-- Dias gerados via JS -->
+      </div>
+    </div>
+
+    <label>Horários disponíveis</label>
+    <div id="slots" class="slots">
+      <span class="no-slots">Selecione um profissional e uma data para ver os horários (9h às 19h).</span>
+    </div>
+
+    <label for="name">Seu nome</label>
+    <input type="text" id="name" placeholder="Digite o seu nome completo" />
+
+    <label for="phone">Seu WhatsApp</label>
+    <input type="tel" id="phone" placeholder="(Indicativo) 9 xxxx-xxxx" />
+
+    <div class="summary" id="summary">
+      Selecione profissional, serviço, data e horário para ver o resumo do seu agendamento.
+    </div>
+
+    <div class="alert" id="alert"></div>
+    <div class="success" id="success"></div>
+
+    <button class="primary" id="bookBtn">
+      Confirmar agendamento
+      <span>✅</span>
+    </button>
+
+    <p class="note">
+      Ao confirmar, será aberto o WhatsApp com os dados do agendamento para o número do salão (+351 912 508 052).
+    </p>
+  </section>
+
+  <!-- Coluna lateral -->
+  <aside class="card">
+    <h2><span class="icon">⭐</span>Próximos agendamentos (demonstração)</h2>
+    <p class="subtitle">Aqui aparecem os horários reservados nesta simulação local.</p>
+
+    <div class="appointments-list" id="appointmentsList">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <h2 style="margin-top:14px;"><span class="icon">ℹ️</span>Informações</h2>
+    <ul style="font-size:0.78rem; padding-left:16px; margin-top:4px; color:#666;">
+      <li>Atendimento: Segunda a Sábado, das 9h às 19h.</li>
+      <li>Profissionais: Ana Rita e Zé Carlos.</li>
+      <li>Agendamento online: rápido, sem filas e sem ligações.</li>
+      <li>Personalize o endereço diretamente no topo do site.</li>
+    </ul>
+  </aside>
+</main>
+
+<script>
+  // Número do WhatsApp do salão (formato internacional: 351 + número, sem espaços)
+  const SALON_WHATSAPP = "351912508052";
+
+  // Profissionais: segunda (1) a sábado (6), das 9h às 19h, com intervalos de 30 min
+  const professionals = {
+    "Ana Rita": {
+      workingDays: [1, 2, 3, 4, 5, 6],
+      slots: generateTimeSlots("09:00", "19:00", 30)
+    },
+    "Zé Carlos": {
+      workingDays: [1, 2, 3, 4, 5, 6],
+      slots: generateTimeSlots("09:00", "19:00", 30)
+    }
+  };
+
+  // Serviços e suas durações (minutos)
+  const servicesDuration = {
+    "Cabelo Homem - Corte simples (30 min)": 30,
+    "Cabelo Homem - Corte simples com lavagem (45 min)": 45,
+    "Cabelo Homem - Corte, lavagem e penteado (1h)": 60,
+    "Cabelo Mulher - Corte simples (40 min)": 40,
+    "Cabelo Mulher - Corte simples com lavagem (1h)": 60,
+    "Cabelo Mulher - Corte, lavagem e penteado (1h20)": 80
+  };
+
+  // Lista de agendamentos (apenas no front-end, para demonstração)
+  let appointments = [];
+
+  // Estado atual
+  let selectedDate = null;
+  let selectedSlot = null;
+  let selectedService = "";
+  let selectedProfessional = "";
+
+  // Elementos
+  const calendarEl = document.getElementById("calendar");
+  const currentMonthEl = document.getElementById("currentMonth");
+  const prevMonthBtn = document.getElementById("prevMonth");
+  const nextMonthBtn = document.getElementById("nextMonth");
+  const quickServices = document.getElementById("quickServices");
+  const serviceSelect = document.getElementById("service");
+  const professionalSelect = document.getElementById("professional");
+  const bookBtn = document.getElementById("bookBtn");
+
+  // Data inicial do calendário
+  let current = new Date();
+  current.setDate(1);
+
+  function generateTimeSlots(start, end, stepMinutes) {
+    const slots = [];
+    let [sh, sm] = start.split(":").map(Number);
+    let [eh, em] = end.split(":").map(Number);
+    let currentMinutes = sh * 60 + sm;
+    const endMinutes = eh * 60 + em;
+
+    while (currentMinutes + stepMinutes <= endMinutes) {
+      const h = String(Math.floor(currentMinutes / 60)).padStart(2, "0");
+      const m = String(currentMinutes % 60).padStart(2, "0");
+      slots.push(h + ":" + m);
+      currentMinutes += stepMinutes;
+    }
+    return slots;
+  }
+
+  function renderCalendar() {
+    calendarEl.innerHTML = "";
+    const year = current.getFullYear();
+    const month = current.getMonth();
+
+    const monthNames = [
+      "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+      "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+    ];
+
+    currentMonthEl.textContent = monthNames[month] + " " + year;
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const lastDay = new Date(year, month + 1, 0).getDate();
+
+    const weekdays = ["D","S","T","Q","Q","S","S"];
+    weekdays.forEach(d => {
+      const w = document.createElement("div");
+      w.textContent = d;
+      w.className = "weekday";
+      calendarEl.appendChild(w);
+    });
+
+    for (let i = 0; i < firstDayIndex; i++) {
+      const empty = document.createElement("div");
+      empty.className = "day disabled";
+      empty.textContent = "";
+      calendarEl.appendChild(empty);
+    }
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    for (let day = 1; day <= lastDay; day++) {
+      const date = new Date(year, month, day);
+      const btn = document.createElement("div");
+      btn.className = "day";
+      btn.textContent = day;
+
+      if (date < today) {
+        btn.classList.add("disabled");
+      } else {
+        btn.classList.add("available");
+        btn.addEventListener("click", () => handleSelectDate(date, btn));
+      }
+
+      if (selectedDate &&
+          date.getFullYear() === selectedDate.getFullYear() &&
+          date.getMonth() === selectedDate.getMonth() &&
+          date.getDate() === selectedDate.getDate()) {
+        btn.classList.add("selected");
+      }
+
+      calendarEl.appendChild(btn);
+    }
+  }
+
+  function handleSelectDate(date, element) {
+    if (!selectedProfessional) {
+      showAlert("Selecione um profissional antes de escolher a data.");
+      return;
+    }
+
+    const dayOfWeek = date.getDay(); // 0=Domingo
+    const profConfig = professionals[selectedProfessional];
+    if (!profConfig.workingDays.includes(dayOfWeek)) {
+      showAlert("Este profissional não atende nesse dia. Escolha outro dia.");
+      return;
+    }
+
+    selectedDate = date;
+    selectedSlot = null;
+    updateSelectedDayUI(element);
+    renderSlots();
+    updateSummary();
+    clearAlert();
+  }
+
+  function updateSelectedDayUI(selectedElement) {
+    document.querySelectorAll(".day.available").forEach(d => {
+      d.classList.remove("selected");
+    });
+    if (selectedElement) selectedElement.classList.add("selected");
+  }
+
+  function renderSlots() {
+    const slotsEl = document.getElementById("slots");
+    slotsEl.innerHTML = "";
+
+    if (!selectedProfessional || !selectedDate) {
+      slotsEl.innerHTML = '<span class="no-slots">Selecione um profissional e uma data para ver os horários (9h às 19h).</span>';
+      return;
+    }
+
+    const profConfig = professionals[selectedProfessional];
+    const baseSlots = profConfig.slots;
+    const dateKey = formatDate(selectedDate);
+    const chosenService = selectedService;
+    const duration = servicesDuration[chosenService] || 30;
+
+    // horários já ocupados
+    const taken = appointments
+      .filter(a => a.professional === selectedProfessional && a.date === dateKey)
+      .map(a => ({
+        start: a.time,
+        duration: servicesDuration[a.service] || 30
+      }));
+
+    if (!baseSlots || baseSlots.length === 0) {
+      slotsEl.innerHTML = '<span class="no-slots">Nenhum horário cadastrado para este profissional.</span>';
+      return;
+    }
+
+    baseSlots.forEach(time => {
+      const btn = document.createElement("div");
+      btn.className = "slot";
+      btn.textContent = time;
+
+      const slotEnd = addMinutes(time, duration);
+
+      // verifica conflito com agendamentos existentes
+      const overlaps = taken.some(t =>
+        intervalsOverlap(
+          time,
+          slotEnd,
+          t.start,
+          addMinutes(t.start, t.duration)
+        )
+      );
+
+      if (overlaps) {
+        btn.classList.add("disabled");
+      } else {
+        btn.addEventListener("click", () => {
+          if (btn.classList.contains("disabled")) return;
+          document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
+          btn.classList.add("selected");
+          selectedSlot = time;
+          updateSummary();
+          clearAlert();
+        });
+      }
+
+      slotsEl.appendChild(btn);
+    });
+
+    if (slotsEl.children.length === 0) {
+      slotsEl.innerHTML = '<span class="no-slots">Sem horários disponíveis para este dia.</span>';
+    }
+  }
+
+  function addMinutes(time, minutes) {
+    let [h, m] = time.split(":").map(Number);
+    let total = h * 60 + m + minutes;
+    let hh = String(Math.floor(total / 60)).padStart(2, "0");
+    let mm = String(total % 60).padStart(2, "0");
+    return hh + ":" + mm;
+  }
+
+  function toMinutes(time) {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function intervalsOverlap(startA, endA, startB, endB) {
+    return toMinutes(startA) < toMinutes(endB) && toMinutes(startB) < toMinutes(endA);
+  }
+
+  function formatDate(d) {
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return dd + "/" + mm + "/" + yyyy;
+  }
+
+  function updateSummary() {
+    const summaryEl = document.getElementById("summary");
+    if (!selectedProfessional || !selectedService || !selectedDate || !selectedSlot) {
+      summaryEl.textContent = "Selecione profissional, serviço, data e horário para ver o resumo do seu agendamento.";
+      return;
+    }
+    const dateTxt = formatDate(selectedDate);
+    summaryEl.textContent =
+      "Resumo: " + selectedService + " com " + selectedProfessional +
+      " em " + dateTxt + " às " + selectedSlot + ".";
+  }
+
+  function showAlert(msg) {
+    const alertEl = document.getElementById("alert");
+    alertEl.textContent = msg;
+    alertEl.style.display = "block";
+  }
+
+  function clearAlert() {
+    const alertEl = document.getElementById("alert");
+    alertEl.textContent = "";
+    alertEl.style.display = "none";
+  }
+
+  function showSuccess(msg) {
+    const successEl = document.getElementById("success");
+    successEl.textContent = msg;
+    successEl.style.display = "block";
+    setTimeout(() => {
+      successEl.style.display = "none";
+    }, 4000);
+  }
+
+  // Enviar dados do agendamento para o WhatsApp do salão
+  function sendToWhatsApp(appointment) {
+    const text =
+      "💇‍♂️ Novo agendamento - Cabeleireiro Corte Fino%0A%0A" +
+      "Nome: " + encodeURIComponent(appointment.name) + "%0A" +
+      "WhatsApp do cliente: " + encodeURIComponent(appointment.phone) + "%0A" +
+      "Profissional: " + encodeURIComponent(appointment.professional) + "%0A" +
+      "Serviço: " + encodeURIComponent(appointment.service) + "%0A" +
+      "Data: " + encodeURIComponent(appointment.date) + "%0A" +
+      "Horário: " + encodeURIComponent(appointment.time) + "%0A%0A" +
+      "Por favor, confirmar o agendamento.";
+
+    const url = "https://wa.me/" + SALON_WHATSAPP + "?text=" + text;
+    window.open(url, "_blank");
+  }
+
+  // Atalhos de serviços
+  quickServices.addEventListener("click", (e) => {
+    const target = e.target.closest(".service");
+    if (!target) return;
+    const value = target.dataset.service;
+    serviceSelect.value = value;
+    selectedService = value;
+    document.querySelectorAll(".service").forEach(s => s.classList.remove("selected"));
+    target.classList.add("selected");
+    renderSlots();
+    updateSummary();
+  });
+
+  serviceSelect.addEventListener("change", () => {
+    selectedService = serviceSelect.value;
+    document.querySelectorAll(".service").forEach(s => {
+      if (s.dataset.service === selectedService) {
+        s.classList.add("selected");
+      } else {
+        s.classList.remove("selected");
+      }
+    });
+    renderSlots();
+    updateSummary();
+  });
+
+  // Seleção de profissional
+  professionalSelect.addEventListener("change", () => {
+    selectedProfessional = professionalSelect.value;
+    selectedDate = null;
+    selectedSlot = null;
+    updateSelectedDayUI(null);
+    renderSlots();
+    updateSummary();
+    clearAlert();
+  });
+
+  // Navegação do calendário
+  prevMonthBtn.addEventListener("click", () => {
+    current.setMonth(current.getMonth() - 1);
+    renderCalendar();
+  });
+
+  nextMonthBtn.addEventListener("click", () => {
+    current.setMonth(current.getMonth() + 1);
+    renderCalendar();
+  });
+
+  // Confirmação do agendamento
+  bookBtn.addEventListener("click", () => {
+    clearAlert();
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+
+    if (!selectedProfessional) return showAlert("Selecione um profissional.");
+    if (!selectedService) return showAlert("Selecione um serviço.");
+    if (!selectedDate) return showAlert("Selecione uma data.");
+    if (!selectedSlot) return showAlert("Selecione um horário.");
+    if (!name) return showAlert("Informe o seu nome.");
+    if (!phone) return showAlert("Informe o seu WhatsApp.");
+
+    const dateStr = formatDate(selectedDate);
+    const duration = servicesDuration[selectedService] || 30;
+    const endTime = addMinutes(selectedSlot, duration);
+
+    // Verifica conflito de horário
+    const exists = appointments.some(a => {
+      if (a.professional !== selectedProfessional || a.date !== dateStr) return false;
+      const existingDuration = servicesDuration[a.service] || 30;
+      return intervalsOverlap(
+        selectedSlot,
+        endTime,
+        a.time,
+        addMinutes(a.time, existingDuration)
+      );
+    });
+
+    if (exists) {
+      return showAlert("Este horário conflita com outro agendamento. Escolha outro horário.");
+    }
+
+    const appointment = {
+      name,
+      phone,
+      professional: selectedProfessional,
+      service: selectedService,
+      date: dateStr,
+      time: selectedSlot
+    };
+
+    // Guarda localmente (para exibir na lista demo)
+    appointments.push(appointment);
+    renderSlots();
+    renderAppointmentsList();
+    updateSummary();
+    showSuccess("Agendamento registado! Vamos abrir o WhatsApp do salão com os detalhes.");
+
+    // Abre WhatsApp com os dados do agendamento
+    sendToWhatsApp(appointment);
+  });
+
+  function renderAppointmentsList() {
+    const listEl = document.getElementById("appointmentsList");
+    listEl.innerHTML = "";
+    if (appointments.length === 0) {
+      listEl.innerHTML = '<span class="no-slots">Sem agendamentos registados (demonstração).</span>';
+      return;
+    }
+
+    const sorted = [...appointments].sort((a, b) => {
+      const [da, ma, ya] = a.date.split("/").map(Number);
+      const [db, mb, yb] = b.date.split("/").map(Number);
+      const dateA = new Date(ya, ma - 1, da, ...a.time.split(":").map(Number));
+      const dateB = new Date(yb, mb - 1, db, ...b.time.split(":").map(Number));
+      return dateA - dateB;
+    });
+
+    sorted.forEach(a => {
+      const item = document.createElement("div");
+      item.className = "appointment-item";
+      item.innerHTML = `
+        <div>
+          <span class="name">${a.name}</span>
+          <span class="detail">${a.date} às ${a.time}</span>
+          <span class="detail">${a.service}</span>
+          <span class="detail">${a.professional}</span>
+        </div>
+        <div class="tag">online</div>
+      `;
+      listEl.appendChild(item);
+    });
+  }
+
+  // Inicialização
+  renderCalendar();
+  renderAppointmentsList();
+</script>
+
+</body>
+</html>
