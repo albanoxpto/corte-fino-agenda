@@ -838,121 +838,46 @@
   }
 
   // Enviar dados do agendamento para o WhatsApp do salão
-  function sendToWhatsApp(appointment) {
-    const text =
-      "💇‍♂️ Novo agendamento - Cabeleireiro Corte Fino%0A%0A" +
-      "Nome: " + encodeURIComponent(appointment.name) + "%0A" +
-      "WhatsApp do cliente: " + encodeURIComponent(appointment.phone) + "%0A" +
-      "Profissional: " + encodeURIComponent(appointment.professional) + "%0A" +
-      "Serviço: " + encodeURIComponent(appointment.service) + "%0A" +
-      "Data: " + encodeURIComponent(appointment.date) + "%0A" +
-      "Horário: " + encodeURIComponent(appointment.time) + "%0A%0A" +
-      "Por favor, confirmar o agendamento.";
+function sendToWhatsApp(appointment) {
+  const textToSalon =
+    "💇‍♂️ Novo agendamento - Cabeleireiro Corte Fino%0A%0A" +
+    "Nome: " + encodeURIComponent(appointment.name) + "%0A" +
+    "WhatsApp do cliente: " + encodeURIComponent(appointment.phone) + "%0A" +
+    "Profissional: " + encodeURIComponent(appointment.professional) + "%0A" +
+    "Serviço: " + encodeURIComponent(appointment.service) + "%0A" +
+    "Data: " + encodeURIComponent(appointment.date) + "%0A" +
+    "Horário: " + encodeURIComponent(appointment.time) + "%0A%0A" +
+    "Por favor, confirmar o agendamento.";
 
-    const url = "https://wa.me/" + SALON_WHATSAPP + "?text=" + text;
-    window.open(url, "_blank");
+  const urlSalon = "https://wa.me/351912508052?text=" + textToSalon;
+  window.open(urlSalon, "_blank");
+
+  // também prepara mensagem para o cliente
+  sendConfirmationToClient(appointment);
+}
+
+function sendConfirmationToClient(appointment) {
+  // Normalizar número do cliente: remover espaços, +, -, etc.
+  let clientPhone = appointment.phone.replace(/\D/g, "");
+
+  // Se o cliente não colocou indicativo, assumimos +351 (Portugal)
+  if (clientPhone.length === 9) {
+    clientPhone = "351" + clientPhone;
   }
 
-  // Atalhos de serviços
-  quickServices.addEventListener("click", (e) => {
-    const target = e.target.closest(".service");
-    if (!target) return;
-    const value = target.dataset.service;
-    serviceSelect.value = value;
-    selectedService = value;
-    document.querySelectorAll(".service").forEach(s => s.classList.remove("selected"));
-    target.classList.add("selected");
-    renderSlots();
-    updateSummary();
-  });
+  const textToClient =
+    "Olá " + encodeURIComponent(appointment.name) + "!%0A%0A" +
+    "A sua marcação no *Cabeleireiro Corte Fino* foi registada:%0A" +
+    "- Profissional: " + encodeURIComponent(appointment.professional) + "%0A" +
+    "- Serviço: " + encodeURIComponent(appointment.service) + "%0A" +
+    "- Data: " + encodeURIComponent(appointment.date) + "%0A" +
+    "- Horário: " + encodeURIComponent(appointment.time) + "%0A%0A" +
+    "Se precisar alterar ou cancelar, responda a esta mensagem.%0A" +
+    "Obrigado! 💇‍♀️";
 
-  serviceSelect.addEventListener("change", () => {
-    selectedService = serviceSelect.value;
-    document.querySelectorAll(".service").forEach(s => {
-      if (s.dataset.service === selectedService) {
-        s.classList.add("selected");
-      } else {
-        s.classList.remove("selected");
-      }
-    });
-    renderSlots();
-    updateSummary();
-  });
-
-  // Seleção de profissional
-  professionalSelect.addEventListener("change", () => {
-    selectedProfessional = professionalSelect.value;
-    selectedDate = null;
-    selectedSlot = null;
-    updateSelectedDayUI(null);
-    renderSlots();
-    updateSummary();
-    clearAlert();
-  });
-
-  // Navegação do calendário
-  prevMonthBtn.addEventListener("click", () => {
-    current.setMonth(current.getMonth() - 1);
-    renderCalendar();
-  });
-
-  nextMonthBtn.addEventListener("click", () => {
-    current.setMonth(current.getMonth() + 1);
-    renderCalendar();
-  });
-
-  // Confirmação do agendamento
-  bookBtn.addEventListener("click", () => {
-    clearAlert();
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-
-    if (!selectedProfessional) return showAlert("Selecione um profissional.");
-    if (!selectedService) return showAlert("Selecione um serviço.");
-    if (!selectedDate) return showAlert("Selecione uma data.");
-    if (!selectedSlot) return showAlert("Selecione um horário.");
-    if (!name) return showAlert("Informe o seu nome.");
-    if (!phone) return showAlert("Informe o seu WhatsApp.");
-
-    const dateStr = formatDate(selectedDate);
-    const duration = servicesDuration[selectedService] || 30;
-    const endTime = addMinutes(selectedSlot, duration);
-
-    // Verifica conflito de horário
-    const exists = appointments.some(a => {
-      if (a.professional !== selectedProfessional || a.date !== dateStr) return false;
-      const existingDuration = servicesDuration[a.service] || 30;
-      return intervalsOverlap(
-        selectedSlot,
-        endTime,
-        a.time,
-        addMinutes(a.time, existingDuration)
-      );
-    });
-
-    if (exists) {
-      return showAlert("Este horário conflita com outro agendamento. Escolha outro horário.");
-    }
-
-    const appointment = {
-      name,
-      phone,
-      professional: selectedProfessional,
-      service: selectedService,
-      date: dateStr,
-      time: selectedSlot
-    };
-
-    // Guarda localmente (para exibir na lista demo)
-    appointments.push(appointment);
-    renderSlots();
-    renderAppointmentsList();
-    updateSummary();
-    showSuccess("Agendamento registado! Vamos abrir o WhatsApp do salão com os detalhes.");
-
-    // Abre WhatsApp com os dados do agendamento
-    sendToWhatsApp(appointment);
-  });
+  const urlClient = "https://wa.me/" + clientPhone + "?text=" + textToClient;
+  window.open(urlClient, "_blank");
+}
 
   function renderAppointmentsList() {
     const listEl = document.getElementById("appointmentsList");
@@ -992,4 +917,5 @@
 </script>
 
 </body>
+
 </html>
